@@ -3,7 +3,7 @@ package com.mygdx.game;
 import java.util.ArrayList;
 
 public class ThreadGestorLines extends Thread implements Runnable{
-    private ArrayList<LineaThread> threads;
+//    private ArrayList<LineaThread> threads;
     private int screenHeight;
     private int imgLineHeight;
     private int velocidad;
@@ -12,16 +12,16 @@ public class ThreadGestorLines extends Thread implements Runnable{
         this.screenHeight = screenHeight;
         this.imgLineHeight = imgLineHeight;
         this.velocidad = velocidad;
-        threads = new ArrayList<>();
+//        threads = new ArrayList<>();
     }
 
-    public ArrayList<LineaThread> getThreads() {
-        return threads;
-    }
-
-    public void setThreads(ArrayList<LineaThread> threads) {
-        this.threads = threads;
-    }
+//    public ArrayList<LineaThread> getThreads() {
+//        return threads;
+//    }
+//
+//    public void setThreads(ArrayList<LineaThread> threads) {
+//        this.threads = threads;
+//    }
 
     public int getScreenHeight() {
         return screenHeight;
@@ -53,8 +53,8 @@ public class ThreadGestorLines extends Thread implements Runnable{
         int aux = -1;
         for (int i = screenHeight; i > (0 - imgLineHeight); i-= velocidad) {
             if (i == screenHeight) {
-                threads.add(new LineaThread(screenHeight, imgLineHeight, velocidad));
-                threads.get(contadorThreads).start();
+//                threads.add(new LineaThread(screenHeight, imgLineHeight, velocidad));
+//                threads.get(contadorThreads).start();
                 contadorThreads++;
             } else {
 //                if (threads.get(contadorThreads - 1).getY()%imgLineHeight == 0) {
@@ -62,15 +62,15 @@ public class ThreadGestorLines extends Thread implements Runnable{
                 if (aux == -1) {
                     if (i >= screenHeight - (imgLineHeight*2)){
                         aux = i;
-                        threads.add(new LineaThread(screenHeight, imgLineHeight, velocidad));
-                        threads.get(contadorThreads).start();
+//                        threads.add(new LineaThread(screenHeight, imgLineHeight, velocidad));
+//                        threads.get(contadorThreads).start();
                         contadorThreads++;
                     }
                 } else {
                     if (aux - i >= imgLineHeight) {
                         aux = i;
-                        threads.add(new LineaThread(screenHeight, imgLineHeight, velocidad));
-                        threads.get(contadorThreads).start();
+//                        threads.add(new LineaThread(screenHeight, imgLineHeight, velocidad));
+//                        threads.get(contadorThreads).start();
                         contadorThreads++;
                     }
                 }
