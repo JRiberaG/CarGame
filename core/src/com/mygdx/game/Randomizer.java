@@ -4,39 +4,42 @@ import java.util.ArrayList;
 import java.util.Random;
 
 /**
- * Clase que sirve para que un coche enemigo (Thread) pueda obtener su próximo num de carril
- * sin que coincida con el que había tenido previamente
+ * Class used to decided which lanes the enemyCars will take.
  */
 public class Randomizer extends Thread implements Runnable{
-    private ArrayList<Integer> carriles;
+
+    private static final int MAX_ITERATIONS = 4500;
+
+    private ArrayList<Integer> lanes;
     private Random rand;
-    private int maxIteraciones;
     private int i;
 
     public Randomizer() {
-        carriles = new ArrayList<>();
-        carriles.add(1);
-        carriles.add(3);
-        carriles.add(2);
-        carriles.add(4);
+        lanes = new ArrayList<>();
+        lanes.add(1);
+        lanes.add(3);
+        lanes.add(2);
+        lanes.add(4);
         rand = new Random();
-        maxIteraciones = 4500;
         i = 3;
     }
 
-    public ArrayList<Integer> getCarriles() {
-        return carriles;
+    public ArrayList<Integer> getLanes() {
+        return lanes;
     }
 
     @Override
     public void run() {
-        while(i < maxIteraciones) {
-            int pos;
-            do {
-                pos = rand.nextInt(4) + 1;
-            }while(pos == carriles.get(i) || pos == carriles.get(i-1));
-            carriles.add(pos);
-            i++;
+        while(true) {
+            while(i < MAX_ITERATIONS) {
+                int pos;
+                do {
+                    pos = rand.nextInt(4) + 1;
+                }while(pos == lanes.get(i) || pos == lanes.get(i-1));
+                System.out.println(pos);
+                lanes.add(pos);
+                i++;
+            }
         }
     }
 

@@ -2,10 +2,10 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.math.Rectangle;
 
-import static com.mygdx.game.CarGame.CARRIL1;
-import static com.mygdx.game.CarGame.CARRIL2;
-import static com.mygdx.game.CarGame.CARRIL3;
-import static com.mygdx.game.CarGame.CARRIL4;
+import static com.mygdx.game.CarGame.LANE1;
+import static com.mygdx.game.CarGame.LANE2;
+import static com.mygdx.game.CarGame.LANE3;
+import static com.mygdx.game.CarGame.LANE4;
 import static com.mygdx.game.CarGame.SCORE_JUMP;
 import static com.mygdx.game.CarGame.moveDragged;
 import static com.mygdx.game.CarGame.moveTapped;
@@ -14,27 +14,33 @@ import static com.mygdx.game.CarGame.multiplierTapped;
 import static com.mygdx.game.CarGame.score;
 
 public class EnemyCar extends Thread implements Runnable{
+    private static final float INCREASE = 0.25f;
+
     private int screenH;
-    private float velocidad;
+    private float speed;
     private boolean go;
     private Rectangle recCar;
 
     private int i;
 
-    public EnemyCar(int screenH, float velocidad, Rectangle recCar) {
+    public EnemyCar(int screenH, float speed, Rectangle recCar) {
         this.screenH = screenH;
-        this.velocidad = velocidad;
+        this.speed = speed;
         this.recCar = recCar;
 
-        if (recCar.x == CARRIL1) {
+        if (recCar.x == LANE1) {
             i = 1;
-        } else if(recCar.x == CARRIL2) {
+        } else if(recCar.x == LANE2) {
             i = 2;
-        } else if(recCar.x == CARRIL3) {
+        } else if(recCar.x == LANE3) {
             i = 3;
         } else {
             i = 4;
         }
+    }
+
+    public void setSpeed(float speed) {
+        this.speed = speed;
     }
 
     public void setGo(boolean go) {
@@ -48,48 +54,48 @@ public class EnemyCar extends Thread implements Runnable{
     @Override
     public void run() {
         while (recCar.y > (0 - recCar.getHeight() * 2)) {
-            // Si el juego no está pausado, el coche se mueve
+            // If the game is not paused, the car moves
             if (go) {
-                // Baja por la carretera
-                recCar.y -= velocidad;
+                // Goes down the road
+                recCar.y -= speed;
                 try {
                     Thread.sleep(10);
                     if (recCar.y < 0 - recCar.getHeight()){
-                        // Coche vuelve a aparecer
+                        // The car reappears
                         recCar.y = screenH;
-                        // Un punto más para el jugador
+
                         score++;
 
-                        // Se obtiene el nuevo carril por donde saldrá
-                        i+=3;
-                        switch(CarGame.randomizer.getCarriles().get(i)){
+                        // The new lane is obtained
+                        i+=2;
+                        switch(CarGame.randomizer.getLanes().get(i)){
                             case 1:
-                                recCar.x = CARRIL1;
+                                recCar.x = LANE1;
                                 break;
                             case 2:
-                                recCar.x = CARRIL2;
+                                recCar.x = LANE2;
                                 break;
                             case 3:
-                                recCar.x = CARRIL3;
+                                recCar.x = LANE3;
                                 break;
                             default:
-                                recCar.x = CARRIL4;
+                                recCar.x = LANE4;
                                 break;
                         }
 
                         if (score % SCORE_JUMP == 0 && score > 0) {
-                            // Aumenta la velocidad de los coches enemigos
-                            CarGame.velocidad += 0.3;
-                            // El usuario mejora su velocidad sólo 3 veces
+                            // The speed is increased
+                            CarGame.speed += INCREASE;
+                            // The user will be able to increase his car speed only three times
                             if (score <= SCORE_JUMP * 3) {
-                                // Aumenta velocidad de movimiento del coche del jugador
+                                // Increases speed of the player's car
                                 moveDragged += multiplierDragged;
                                 moveTapped += multiplierTapped;
                             }
 
                             Thread.sleep(150);
                         }
-                        velocidad = CarGame.velocidad;
+                        speed = CarGame.speed;
                     }
                 } catch (InterruptedException e) {}
             }

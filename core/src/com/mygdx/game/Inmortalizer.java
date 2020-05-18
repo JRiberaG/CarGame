@@ -12,13 +12,13 @@ public class Inmortalizer extends Thread implements Runnable{
         i = 0;
     }
 
-    // Método que inicia el contador
+    // Method that initiates the counter
     public void count(){
         start = true;
         ready = false;
     }
 
-    // Devuelve si está listo (finaliza su inmortalidad) o no
+    // Returns whether it's ready (ends its inmortality) or not
     public boolean isReady() {
         return ready;
     }
@@ -26,7 +26,7 @@ public class Inmortalizer extends Thread implements Runnable{
     @Override
     public void run() {
         while(true) {
-            // Cuenta tres segundos
+            // Counts three seconds
             while (i < 3) {
                 if (start) {
                     try {
@@ -35,9 +35,9 @@ public class Inmortalizer extends Thread implements Runnable{
                     } catch (InterruptedException e) {}
                 }
             }
-            // Marca como finalizada su inmortalidad
+            // Flags its inmortality as finished
             ready = true;
-            // Desactiva la flag para que no se reinicie la cuenta atrás del bucle
+            // Deactivates the flag so the loop countdown is not reset
             start = false;
             i = 0;
         }

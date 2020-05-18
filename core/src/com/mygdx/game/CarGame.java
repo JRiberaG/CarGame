@@ -17,45 +17,22 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 /**
- * [X] Dibujar fondo con calzada y lineas divisorias (de la calzada)
- * [X] Situar en la pantalla algunos coches enemigos y el coche del jugador
- * [X] Colocar y mover las lineas divisorias de carriles arriba y abajo
- * [X] Mover el coche del jugador usando los recuadros grises
- * [X] Mover el coche del jugador arrastrando el dedo
- * [X] Hacer que el coche enemigo se mueva solo
- * [X] Situar número de vidas en pantalla
- * [X] Detectar colisiones, reducir vidas y controlar fin de juego
- * [X] Ir sacando coches cuando los otros cuatro desaparezcan
- * [X] Controlar/mostrar puntuaciones
- *
- * OTROS
- * [X] Pantalla Pause
- * [X] Pantalla Start
- * [X] Pantalla Game Over
- * [X] Modo inmortal
- * [X] Modo debug
- *
- * FIXME / TODO
- * 	- Optimizar juego -> agrupar en métodos
- * 	- Cambiar idioma código/juego: o inglés o castellano, no ambos
- * 	- Comentar
- *
+ * TODO:
+ * 	- Comment
  */
 public class CarGame extends ApplicationAdapter implements InputProcessor{
-	static float CARRIL1;
-	static float CARRIL2;
-	static float CARRIL3;
-	static float CARRIL4;
+	static float LANE1;
+	static float LANE2;
+	static float LANE3;
+	static float LANE4;
     static int SCREEN_WIDTH;
 	static int SCREEN_HEIGHT;
 
 	private static final int START_LIVES = 4;
 	private static final int START_SCORE = 0;
-//	private static final int START_SPEED = 1;
 	private static final int START_SPEED = 4;
 	private static final int START_MOVTAPPED = 35;
-//	private static final int START_MOVDRAGGED = 10;
-private static final int START_MOVDRAGGED = 20;
+	private static final int START_MOVDRAGGED = 20;
 	private static final int CAR_W = 128;
 	private static final int CAR_H = 256;
 
@@ -68,7 +45,6 @@ private static final int START_MOVDRAGGED = 20;
 	private ShapeRenderer sRenderer;
 
 	private Rectangle ownCar;
-	private ArrayList<Rectangle> recEnemyCars;
 
 	private BitmapFont fontHeader;
 	private BitmapFont fontSubHeader;
@@ -76,12 +52,12 @@ private static final int START_MOVDRAGGED = 20;
 
 	static int score;
 	private int lives;
-	static final int SCORE_JUMP = 20;
+	static final int SCORE_JUMP = 10;
 	private long startTime;
 	private long currentTime;
 	private long startTimePause;
 	private long timeElapsedPause;
-	static float velocidad;
+	static float speed;
 	private float laneWidth;
 	private float lineWidth;
 	private float defXOwnCar;
@@ -112,7 +88,7 @@ private static final int START_MOVDRAGGED = 20;
 	private EnemyCar tEnemy2;
 	private EnemyCar tEnemy3;
 	private EnemyCar tEnemy4;
-	static ArrayList<EnemyCar> listEnemyCars;
+	private static ArrayList<EnemyCar> listEnemyCars;
 
 	private boolean debug;
 	private boolean paused;
@@ -130,20 +106,16 @@ private static final int START_MOVDRAGGED = 20;
 		Gdx.input.setInputProcessor(this);
 		score = START_SCORE;
 		lives = START_LIVES;
-		velocidad = START_SPEED;
+		speed = START_SPEED;
 
-		// Se obtiene el tamaño de la pantalla (ancho y alto)
+		// The width and height of the screen is gotten
 		SCREEN_WIDTH = Gdx.graphics.getWidth();
 		SCREEN_HEIGHT = Gdx.graphics.getHeight();
 
-		// Tamaño de cada carril (la pantalla se divide en 6 (4 calzada + 2 césped))
+		// Size of each lane (screen is divided in 6 (4 road + 2 lawn))
 		laneWidth = (float)SCREEN_WIDTH / 6;
-		// Tamaño de la linea divisoria de la calzada (linea que separa césped de calzada)
+		// Size of each dividing line of the road (line that separates the road from the lawn)
 		lineWidth = laneWidth / 15;
-
-		// FIXME:
-		//		- Modificar el tamaño del coche dependiendo del tamaño de la pantalla,
-		//			deberá ser potencia de 2.
 
 		fontHeader = new BitmapFont();
 		fontSubHeader = new BitmapFont();
@@ -161,45 +133,45 @@ private static final int START_MOVDRAGGED = 20;
 		directionBarHeight = (float)(interactionBarHeight * 0.70);
 		directionBarWidth = (float)((SCREEN_WIDTH / 2) * 0.95);
 
-		crearTexturas();
+		createTextures();
 
 		batch = new SpriteBatch();
 		sRenderer = new ShapeRenderer();
 
-		CARRIL1 = (float)(laneWidth * 1.175);
-		CARRIL2 = (float)((laneWidth * 2) * 1.075);
-		CARRIL3 = (float)((laneWidth * 3) * 1.065);
-		CARRIL4 = (float)((laneWidth * 4) * 1.055);
+		LANE1 = (float)(laneWidth * 1.175);
+		LANE2 = (float)((laneWidth * 2) * 1.075);
+		LANE3 = (float)((laneWidth * 3) * 1.065);
+		LANE4 = (float)((laneWidth * 4) * 1.055);
 
 		defXOwnCar = (float)(SCREEN_WIDTH / 2) - CAR_W;
 		defYOwnCar = interactionBarHeight * 2;
 		ownCar = new Rectangle(defXOwnCar, defYOwnCar, CAR_W, CAR_H);
 
-		defXCar1 = CARRIL1;
-		defXCar2 = CARRIL2;
-		defXCar3 = CARRIL3;
-		defXCar4 = CARRIL4;
-		defYCar1 = (float)(SCREEN_HEIGHT * 0.20);
-		defYCar2 = (float)(SCREEN_HEIGHT * 0.65);
+		defXCar1 = LANE1;
+		defXCar2 = LANE2;
+		defXCar3 = LANE3;
+		defXCar4 = LANE4;
+		defYCar1 = (float)(SCREEN_HEIGHT * 0.15);
+		defYCar2 = (float)(SCREEN_HEIGHT * 0.7);
 		defYCar3 = (float)(SCREEN_HEIGHT * 0.40);
 		defYCar4 = (float)(SCREEN_HEIGHT * 0.95);
-		recEnemyCars = new ArrayList<>();
+		ArrayList<Rectangle> recEnemyCars = new ArrayList<>();
 		recEnemyCars.add(new Rectangle(defXCar1, defYCar1, CAR_W, CAR_H));
 		recEnemyCars.add(new Rectangle(defXCar2, defYCar2, CAR_W, CAR_H));
 		recEnemyCars.add(new Rectangle(defXCar3, defYCar3, CAR_W, CAR_H));
 		recEnemyCars.add(new Rectangle(defXCar4, defYCar4, CAR_W, CAR_H));
 
 		listEnemyCars = new ArrayList<>();
-		tEnemy1 = new EnemyCar(SCREEN_HEIGHT, velocidad, recEnemyCars.get(0));
-		tEnemy2 = new EnemyCar(SCREEN_HEIGHT, velocidad, recEnemyCars.get(1));
-		tEnemy3 = new EnemyCar(SCREEN_HEIGHT, velocidad, recEnemyCars.get(2));
-		tEnemy4 = new EnemyCar(SCREEN_HEIGHT, velocidad, recEnemyCars.get(3));
+		tEnemy1 = new EnemyCar(SCREEN_HEIGHT, speed, recEnemyCars.get(0));
+		tEnemy2 = new EnemyCar(SCREEN_HEIGHT, speed, recEnemyCars.get(1));
+		tEnemy3 = new EnemyCar(SCREEN_HEIGHT, speed, recEnemyCars.get(2));
+		tEnemy4 = new EnemyCar(SCREEN_HEIGHT, speed, recEnemyCars.get(3));
 		listEnemyCars.add(tEnemy1);
 		listEnemyCars.add(tEnemy2);
 		listEnemyCars.add(tEnemy3);
 		listEnemyCars.add(tEnemy4);
-		for (EnemyCar ec : listEnemyCars) {
-			ec.start();
+		for (EnemyCar enemyCar : listEnemyCars) {
+			enemyCar.start();
 		}
 		paused = false;
 		started = false;
@@ -221,9 +193,9 @@ private static final int START_MOVDRAGGED = 20;
 		timeElapsedPause = -1;
 
 		laneSeparators = new ArrayList<>();
-		colocarLineas(true);
-		for (LaneSeparator ls : laneSeparators) {
-			ls.start();
+		putLines(true);
+		for (LaneSeparator laneSeparator : laneSeparators) {
+			laneSeparator.start();
 		}
 	}
 
@@ -232,22 +204,22 @@ private static final int START_MOVDRAGGED = 20;
 		Gdx.gl.glClearColor(0.4f, 1, 0.4f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-		comprobarColisiones();
+		checkCollisions();
 
-		// Número de vidas, si el juego ha empezado, ...
-		otrasComprobaciones();
+		// Number of lives, if the game has started...
+		otherChecks();
 
-		dibujarCalzada();
-		dibujarLineasYPause();
-		dibujarCoches();
-		dibujarPanelInfo();
-        dibujarPanelDirecciones();
+		drawRoad();
+		drawLinesAndPauseButton();
+		drawCars();
+		drawInfoPanel();
+        drawDirectionsPanel();
 
-        // Pantalla 'Pause', 'GameOver', 'Start'
-        dibujarPantallasOpcionales();
+		// Pause screen, 'GameOver' screen and 'Start' screen
+        drawoptionalScreens();
 	}
 
-	private void dibujarPantallasOpcionales() {
+	private void drawoptionalScreens() {
 		if (paused) {
 			Gdx.gl.glEnable(GL20.GL_BLEND);
 			Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
@@ -276,7 +248,7 @@ private static final int START_MOVDRAGGED = 20;
 			batch.end();
 			Gdx.gl.glDisable(GL20.GL_BLEND);
 		} else if (gameOver) {
-			pararCoches();
+			stopCars();
 			Gdx.gl.glEnable(GL20.GL_BLEND);
 			Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 			sRenderer.begin(ShapeRenderer.ShapeType.Filled);
@@ -295,17 +267,18 @@ private static final int START_MOVDRAGGED = 20;
 	}
 
 	// =============== OTROS MÉTODOS ===============
-	private void otrasComprobaciones() {
+	private void otherChecks() {
 		// Se acaba la partida, no hay más vidas
+		// The game is over, there are not more lives
 		if (lives == 0 && started) {
 			gameOver = true;
 			inmortalizer.finish();
 
-			colocarLineas(false);
+			putLines(false);
 		}
 
 		if (!started) {
-			posicionarCochesInicio();
+			positionInitialCars();
 		}
 
 		if (!paused && started && !gameOver) {
@@ -321,30 +294,30 @@ private static final int START_MOVDRAGGED = 20;
 		}
 	}
 
-	private void colocarLineas(boolean inicializar) {
+	private void putLines(boolean initialize) {
 		int numLines = (SCREEN_HEIGHT + imgLine.getHeight()) / imgLine.getHeight();
 		// Dividimos por dos porque se muestra linea si, linea no, linea sí, ...
 		numLines /= 2;
-		int posAnterior = SCREEN_HEIGHT + imgLine.getHeight();
+		int previousPos = SCREEN_HEIGHT + imgLine.getHeight();
 		ArrayList<Float> x = new ArrayList<>();
 		x.add(laneWidth * 2);
 		x.add(laneWidth * 3);
 		x.add(laneWidth * 4);
 		for (int i = 0; i < numLines; i++) {
-			int posActual = posAnterior - (imgLine.getHeight() * 2);
-			if (inicializar) {
-				laneSeparators.add(new LaneSeparator(imgLine.getHeight(), x, posActual));
+			int currentPos = previousPos - (imgLine.getHeight() * 2);
+			if (initialize) {
+				laneSeparators.add(new LaneSeparator(imgLine.getHeight(), x, currentPos));
 			} else {
-				laneSeparators.get(i).setY(posActual);
+				laneSeparators.get(i).setY(currentPos);
 			}
-			posAnterior = posActual;
+			previousPos = currentPos;
 		}
 	}
 
-	private void comprobarColisiones() {
+	private void checkCollisions() {
 	    if (!inmortal) {
-            for (EnemyCar ec : listEnemyCars) {
-    			if (hayColision(ownCar, ec.getRecCar())) {
+            for (EnemyCar enemyCar : listEnemyCars) {
+    			if (checkCollision(ownCar, enemyCar.getRecCar())) {
                     ownCar.x = defXOwnCar;
                     ownCar.y = defYOwnCar;
                     lives--;
@@ -360,24 +333,24 @@ private static final int START_MOVDRAGGED = 20;
         }
 	}
 
-	private void dibujarCalzada() {
-		// Dibujamos la calzada
+	private void drawRoad() {
+		// Road is drawn
 		sRenderer.begin(ShapeRenderer.ShapeType.Filled);
 		sRenderer.setColor(0.4f, 0.4f, 0.4f, 1);
 		sRenderer.rect(laneWidth, 0, SCREEN_WIDTH - (laneWidth * 2), SCREEN_HEIGHT);
 		sRenderer.end();
 
-		// Dibujamos las lineas que marcan el límite de la calzada
+		// Lines are drawn
 		sRenderer.begin(ShapeRenderer.ShapeType.Filled);
 		sRenderer.setColor(Color.LIGHT_GRAY);
-		// lim izq
+		// boundary left line
 		sRenderer.rect(laneWidth, 0, lineWidth, SCREEN_HEIGHT);
-		// lim der
+		// boundary right line
 		sRenderer.rect(SCREEN_WIDTH - laneWidth, 0, lineWidth, SCREEN_HEIGHT);
 		sRenderer.end();
 	}
 
-	private void posicionarCochesInicio() {
+	private void positionInitialCars() {
 		tEnemy1.getRecCar().x = defXCar1;
 		tEnemy2.getRecCar().x = defXCar2;
 		tEnemy3.getRecCar().x = defXCar3;
@@ -388,15 +361,18 @@ private static final int START_MOVDRAGGED = 20;
 		tEnemy4.getRecCar().y = defYCar4;
 		ownCar.y = defYOwnCar;
 		ownCar.x = defXOwnCar;
+		for (EnemyCar ec : listEnemyCars) {
+			ec.setSpeed(START_SPEED);
+		}
 	}
 
-	private void dibujarLineasYPause() {
+	private void drawLinesAndPauseButton() {
 		batch.begin();
-		// Dibujamos el botón de pause
+		// Pause Button is drawn
 		batch.draw(imgPause, (float)(laneWidth * 0.5 - (imgPause.getWidth() / 2)), (float)(SCREEN_HEIGHT / 2));
-		// Dibujamos las lineas
+		// Lines are drawn (lane separators)
 		for (LaneSeparator ls : laneSeparators) {
-			// Se dibujan todas los separadores de las lineas (3 por linea)
+			// All the lane separators are drawn (3 for lane)
 			for (float x : ls.getX()) {
 				batch.draw(imgLine, x, ls.getY());
 			}
@@ -404,7 +380,7 @@ private static final int START_MOVDRAGGED = 20;
 		batch.end();
 	}
 
-	private void dibujarCoches() {
+	private void drawCars() {
 		if (debug) {
 			// enemyCar num 1
 			sRenderer.begin(ShapeRenderer.ShapeType.Filled);
@@ -450,33 +426,33 @@ private static final int START_MOVDRAGGED = 20;
 		}
 	}
 
-	private void dibujarPanelInfo() {
-		// Dibujamos el fondo del panel de info
+	private void drawInfoPanel() {
+		// Background of the info panel is drawn
 		sRenderer.begin(ShapeRenderer.ShapeType.Filled);
 		sRenderer.setColor(Color.BLACK);
 		sRenderer.rect(0, interactionBarHeight, SCREEN_WIDTH, interactionBarHeight);
 		sRenderer.end();
-		// Dibujamos la info
+		// Info is drawn
 		batch.begin();
 		fontInfo.getData().setScale(2.75f);
-		// tiempo
-		fontInfo.draw(batch, "TIEMPO: " + timeFormatter(), (float)(divInfoWidth * 0.025), (float)(interactionBarHeight * 1.70));
-		// coches
-		fontInfo.draw(batch, "COCHES: " + score, (float)(divInfoWidth*1.125), (float)(interactionBarHeight * 1.70));
-		// vidas
+		// time
+		fontInfo.draw(batch, "TIME: " + timeFormatter(), (float)(divInfoWidth * 0.025), (float)(interactionBarHeight * 1.70));
+		// cars
+		fontInfo.draw(batch, "SCORE: " + score, (float)(divInfoWidth*1.125), (float)(interactionBarHeight * 1.70));
+		// lives
 		float x = -1;
 		for (int i = 0; i < lives; i++) {
 			if (i > 0) {
 				if (x == -1) {
-					// Se coloca el primer coche a al derecha de todo
+					// The first car is put at the right
 					x = (float)(SCREEN_WIDTH * 0.875);
 					batch.draw(imgLives.get(i), x, (float)(interactionBarHeight * 1.15));
 				} else {
-					// Los coches siguientes se van colocando a la izquierda del anterior
-					// tal que sí (en caso de tener todas las vidas)
-					//			  [1] <- primera iteracion
-					//		   [2][1] <- segunda iteracion
-					//		[3][2][1] <- tercera y última iteracion
+					// The following cars are being put to the left of the previous one
+					// just like that (in case there are any lives)
+					//			  [1] <- first iteration
+					//		   [2][1] <- second iteration
+					//		[3][2][1] <- third and last iteration
 					x -= divInfoWidth / 3;
 					batch.draw(imgLives.get(i), x, (float)(interactionBarHeight * 1.15));
 				}
@@ -485,52 +461,52 @@ private static final int START_MOVDRAGGED = 20;
 		batch.end();
 	}
 
-	private void dibujarPanelDirecciones() {
-		// Dibujamos el fondo del panel de direcciones
+	private void drawDirectionsPanel() {
+		// Background of the direction panel is drawn
 		sRenderer.begin(ShapeRenderer.ShapeType.Filled);
 		sRenderer.setColor(Color.GRAY);
 		sRenderer.rect(0, 0, SCREEN_WIDTH, interactionBarHeight);
 		sRenderer.end();
-		// Dibujamos cada cuadro de direcciones
+		// Each rectangle of the direction is drawn (one for turning left, other for turning right)
 		sRenderer.begin(ShapeRenderer.ShapeType.Filled);
 		sRenderer.setColor(Color.LIGHT_GRAY);
-		// izq
+		// left
 		sRenderer.rect((float)(directionBarWidth * 0.025), (float)(directionBarHeight * 0.20), directionBarWidth, directionBarHeight);
-		// der
+		// right
 		sRenderer.rect((float)(SCREEN_WIDTH / 2) + (float)(directionBarWidth * 0.025), (float)(directionBarHeight * 0.20), directionBarWidth, directionBarHeight);
 		sRenderer.end();
 	}
 
-	private void pararCoches() {
-		for (EnemyCar ec : listEnemyCars) {
-			ec.setGo(false);
+	private void stopCars() {
+		for (EnemyCar enemyCar : listEnemyCars) {
+			enemyCar.setGo(false);
 		}
-		for (LaneSeparator ls : laneSeparators) {
-			ls.setGo(false);
+		for (LaneSeparator laneSeparator : laneSeparators) {
+			laneSeparator.setGo(false);
 		}
 	}
 
 	private void reloadGame() {
 		randomizer.reload();
-		posicionarCochesInicio();
 		lives = START_LIVES;
 		score = START_SCORE;
-		velocidad = START_SPEED;
+		speed = START_SPEED;
 		moveTapped = START_MOVTAPPED;
 		moveDragged = START_MOVDRAGGED;
+		positionInitialCars();
 	}
 
-	private void arrancarCoches() {
-		for (EnemyCar ec : listEnemyCars) {
-			ec.setGo(true);
+	private void startCars() {
+		for (EnemyCar enemyCar : listEnemyCars) {
+			enemyCar.setGo(true);
 		}
 
-		for (LaneSeparator ls : laneSeparators) {
-			ls.setGo(true);
+		for (LaneSeparator laneSeparator : laneSeparators) {
+			laneSeparator.setGo(true);
 		}
 	}
 
-	private void crearTexturas() {
+	private void createTextures() {
 		imgCars = new ArrayList<>();
 		imgCars.add(new Texture("cotxe1_final.png"));
 		imgCars.add(new Texture("cotxe2_final.png"));
@@ -550,28 +526,22 @@ private static final int START_MOVDRAGGED = 20;
 		return new SimpleDateFormat("mm:ss:SS").format(currentTime);
 	}
 
-	/**
-	 * Es lo mismo que el overlaps pero con un poco más de margen (es más difícil tocarse)
-	 * @param player	Coche del jugador
-	 * @param other		Coche enemigo
-	 * @return			Si se ha tocado o no
-	 */
-	private boolean hayColision(Rectangle player, Rectangle other) {
-		boolean hayColision = false;
+	private boolean checkCollision(Rectangle player, Rectangle other) {
+		boolean thereIsCollision = false;
 
 		if ((player.x * 1.04) < other.x + other.width &&
 				player.x + player.width > (other.x * 1.04) &&
 				(player.y * 1.04) < other.y + other.height &&
 				player.y + player.height > (other.y * 1.04)) {
-			hayColision = true;
+			thereIsCollision = true;
 		}
 
-		return hayColision;
+		return thereIsCollision;
 	}
-	// =============== OTROS MÉTODOS ===============
+	// =============== OTHER METHODS ===============
 
 
-	// =============== METODOS INPUTPROCESSOR ===============
+	// =============== METHODS INPUTPROCESSOR ===============
 	@Override
 	public void dispose () {
 		batch.dispose();
@@ -653,37 +623,37 @@ private static final int START_MOVDRAGGED = 20;
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 		if (!paused && started && !gameOver) {
-			// Presionamos el control para mover hacia izq
+			// The control to move left is pressed
 			if (screenX < (directionBarWidth * 1.025) && SCREEN_HEIGHT - screenY < directionBarHeight){
 				if (ownCar.x - moveTapped > laneWidth*1.1) {
 					ownCar.x -= moveTapped;
 				}
 			}
 
-			// Se pulsa el control para mover hacia der
+			// The control to move right is pressed
 			if (screenX > (directionBarWidth*1.050) && SCREEN_HEIGHT - screenY < directionBarHeight){
 				if (ownCar.x + moveTapped < (SCREEN_WIDTH - (laneWidth*1.75))) {
 					ownCar.x += moveTapped;
 				}
 			}
 
-            // Se toca el botón de pause
+			// The button to pause the game is pressed
             if ((screenX > laneWidth * 0.1 && screenX < (float)(laneWidth * 0.5 + (imgPause.getWidth() / 2))) &&
                     (screenY < SCREEN_HEIGHT / 2 && screenY > SCREEN_HEIGHT / 2 - imgPause.getWidth())) {
             	startTimePause = System.currentTimeMillis();
                 paused = true;
-                pararCoches();
+                stopCars();
             }
 		} else {
 		    if (screenX < SCREEN_WIDTH && screenY < SCREEN_HEIGHT) {
 		    	if (paused) {
 		    		timeElapsedPause = System.currentTimeMillis() - startTimePause;
 		        	paused = false;
-		        	arrancarCoches();
+		        	startCars();
 				} else if (!started) {
 		    		started = true;
 		    		reloadGame();
-		    		arrancarCoches();
+		    		startCars();
 		    		startTime = System.currentTimeMillis();
 				} else if (gameOver) {
 		    		gameOver = false;
@@ -703,16 +673,16 @@ private static final int START_MOVDRAGGED = 20;
 	@Override
 	public boolean touchDragged(int screenX, int screenY, int pointer) {
 		if (!paused) {
-			// Si se toca la pantalla por encima de las interactionBar (altura de la calzada para arriba) ...
+			// If the screen is touched above the interactionBar ...
             if (screenY < (SCREEN_HEIGHT - interactionBarHeight * 2)) {
-				// Comprueba el lado hacia donde se está arrastrando el coche
-				// y en caso de poder moverlo sin salirse de la calzada, lo hace
-                // izq
+            	// Checks the side the car is being dragged to and if the car
+				// is able to be moved without getting it out of the road, it's moved
+                // left side
                 if (screenX < ownCar.x + (ownCar.width / 2)) {
                     if (ownCar.x - moveDragged > laneWidth*1.1) {
                         ownCar.x -= moveDragged;
                     }
-                // der
+                // right side
                 } else if (screenX > ownCar.x) {
                     if (ownCar.x + moveDragged < (SCREEN_WIDTH - (laneWidth*1.75))) {
                         ownCar.x += moveDragged;
@@ -732,5 +702,5 @@ private static final int START_MOVDRAGGED = 20;
 	public boolean scrolled(int amount) {
 		return false;
 	}
-	// =============== METODOS INPUTPROCESSOR ===============
+	// =============== METHODS INPUTPROCESSOR ===============
 }

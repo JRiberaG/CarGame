@@ -9,21 +9,21 @@ public class LaneSeparator extends Thread implements Runnable{
     private int imgLineHeight;
     private ArrayList<Float> x;
     private int y;
-    private float velocidad;
+    private float speed;
     private boolean go;
 
     public LaneSeparator(int imgLineHeight, ArrayList<Float> x, int y) {
         this.imgLineHeight = imgLineHeight;
         this.x = x;
         this.y = y;
-        velocidad = 3;
+        speed = 4.5f;
     }
 
     @Override
     public void run() {
         while (y > 0 - imgLineHeight) {
             if (go) {
-                y -= velocidad;
+                y -= speed;
 
                 try {
                     Thread.sleep(10);
