@@ -36,7 +36,6 @@ public class Randomizer extends Thread implements Runnable{
                 do {
                     pos = rand.nextInt(4) + 1;
                 }while(pos == lanes.get(i) || pos == lanes.get(i-1));
-                System.out.println(pos);
                 lanes.add(pos);
                 i++;
             }
